@@ -1,0 +1,416 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
+local playerGui = player:WaitForChild("PlayerGui")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AvatarChangePanel"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 580, 0, 420)
+mainFrame.Position = UDim2.new(0.5, -290, 0.5, -210)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+mainFrame.BorderColor3 = Color3.fromRGB(255, 69, 0)
+mainFrame.BorderSizePixel = 4
+mainFrame.Parent = screenGui
+
+local headerFrame = Instance.new("Frame")
+headerFrame.Name = "HeaderFrame"
+headerFrame.Size = UDim2.new(1, 0, 0, 60)
+headerFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+headerFrame.BorderSizePixel = 0
+headerFrame.Parent = mainFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, -140, 1, 0)
+titleLabel.Position = UDim2.new(0, 70, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Settings"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 32
+titleLabel.Parent = headerFrame
+
+local leftImage = Instance.new("ImageLabel")
+leftImage.Size = UDim2.new(0, 50, 0, 50)
+leftImage.Position = UDim2.new(0, 10, 0, 5)
+leftImage.BackgroundTransparency = 1
+leftImage.Image = "rbxassetid://125494725096524"
+leftImage.Parent = headerFrame
+
+local rightImage = Instance.new("ImageLabel")
+rightImage.Size = UDim2.new(0, 50, 0, 50)
+rightImage.Position = UDim2.new(1, -60, 0, 5)
+rightImage.BackgroundTransparency = 1
+rightImage.Image = "rbxassetid://125494725096524"
+rightImage.Parent = headerFrame
+
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, 0, 0, 3)
+divider.Position = UDim2.new(0, 0, 1, 0)
+divider.BackgroundColor3 = Color3.fromRGB(255, 69, 0)
+divider.BorderSizePixel = 0
+divider.Parent = headerFrame
+
+local dragging, dragInput, dragStart, startPos
+local function update(input)
+	local delta = input.Position - dragStart
+	mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+headerFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+headerFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+
+local container = Instance.new("Frame")
+container.Name = "Container"
+container.Size = UDim2.new(1, -20, 1, -80)
+container.Position = UDim2.new(0, 10, 0, 70)
+container.BackgroundTransparency = 1
+container.Parent = mainFrame
+
+local function createButton(name, text, size, pos, parent)
+	local btn = Instance.new("TextButton")
+	btn.Name = name
+	btn.Text = text
+	btn.Size = size
+	btn.Position = pos
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.TextSize = 16
+	btn.Font = Enum.Font.SourceSansBold
+	btn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+	btn.BorderColor3 = Color3.fromRGB(255, 69, 0)
+	btn.BorderSizePixel = 2
+	btn.Parent = parent
+
+	btn.MouseButton1Click:Connect(function()
+		btn.BackgroundColor3 = Color3.fromRGB(255, 69, 0)
+		btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+		task.wait(0.1)
+		btn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	end)
+	return btn
+end
+
+local function createTextBox(name, placeholder, labelText, size, pos, parent)
+	local frame = Instance.new("Frame")
+	frame.Name = name .. "Area"
+	frame.Size = size
+	frame.Position = pos
+	frame.BackgroundTransparency = 1
+	frame.Parent = parent
+
+	local box = Instance.new("TextBox")
+	box.Name = name
+	box.Size = UDim2.new(1, 0, 0, 35)
+	box.PlaceholderText = placeholder
+	box.Text = ""
+	box.TextColor3 = Color3.fromRGB(255, 255, 255)
+	box.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+	box.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+	box.BorderColor3 = Color3.fromRGB(255, 69, 0)
+	box.BorderSizePixel = 2
+	box.TextSize = 14
+	box.Font = Enum.Font.SourceSans
+	box.Parent = frame
+
+	local lbl = Instance.new("TextLabel")
+	lbl.Size = UDim2.new(1, 0, 0, 15)
+	lbl.Position = UDim2.new(0, 0, 0, 38)
+	lbl.BackgroundTransparency = 1
+	lbl.Text = labelText
+	lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+	lbl.TextSize = 10
+	lbl.Font = Enum.Font.SourceSans
+	lbl.Parent = frame
+	return box
+end
+
+local topLeft = Instance.new("Frame")
+topLeft.Size = UDim2.new(0, 270, 0, 160)
+topLeft.Position = UDim2.new(0, 0, 0, 0)
+topLeft.BackgroundTransparency = 1
+topLeft.Parent = container
+
+local btnSkybox = createButton("SetSkybox", "Set\nSkybox", UDim2.new(0, 80, 0, 70), UDim2.new(0, 5, 0, 5), topLeft)
+local btnDecal = createButton("DecalSpam", "Decal\nSpam", UDim2.new(0, 80, 0, 70), UDim2.new(0, 93, 0, 5), topLeft)
+local txtTexture = createTextBox("IDHere", "ID Here", "Change Texture", UDim2.new(0, 80, 0, 55), UDim2.new(0, 181, 0, 5), topLeft)
+
+local btnJumpscare = createButton("JumpScare", "Jump\nScare", UDim2.new(0, 80, 0, 70), UDim2.new(0, 5, 0, 85), topLeft)
+local btnParticle = createButton("ParticleSpam", "Particle\nSpam", UDim2.new(0, 80, 0, 70), UDim2.new(0, 93, 0, 85), topLeft)
+local txtParticleSize = createTextBox("SizeHere", "Size Here", "Change Particle Size", UDim2.new(0, 80, 0, 55), UDim2.new(0, 181, 0, 85), topLeft)
+
+local function getTextureID() return tonumber(txtTexture.Text) or 0 end
+local function getParticleSize() return tonumber(txtParticleSize.Text) or 2 end
+
+btnSkybox.MouseButton1Click:Connect(function()
+	local SKY_ID = getTextureID(); local Lighting = game:GetService("Lighting"); local sky = Lighting:FindFirstChild("Sky") or Instance.new("Sky", Lighting); sky.SkyboxBk = "rbxassetid://" .. SKY_ID; sky.SkyboxDn = "rbxassetid://" .. SKY_ID; sky.SkyboxFt = "rbxassetid://" .. SKY_ID; sky.SkyboxLf = "rbxassetid://" .. SKY_ID; sky.SkyboxRt = "rbxassetid://" .. SKY_ID; sky.SkyboxUp = "rbxassetid://" .. SKY_ID
+end)
+
+btnDecal.MouseButton1Click:Connect(function()
+	local DECAL_ID = getTextureID(); for _, obj in pairs(Workspace:GetDescendants()) do if obj:IsA("BasePart") then local faces = {"Front", "Back", "Bottom", "Top", "Left", "Right"}; for _, face in pairs(faces) do local decal = Instance.new("Decal"); decal.Face = Enum.NormalId[face]; decal.Texture = "rbxassetid://" .. DECAL_ID; decal.Parent = obj end end end
+end)
+
+btnParticle.MouseButton1Click:Connect(function()
+	local PARTICLE_ID = getTextureID(); local pSize = getParticleSize(); for _, v in pairs(Workspace:GetDescendants()) do if v:IsA("BasePart") then local p = Instance.new("ParticleEmitter", v); p.Texture = "rbxassetid://" .. PARTICLE_ID; p.Rate = 50; p.Size = NumberSequence.new(pSize) end end
+end)
+
+btnJumpscare.MouseButton1Click:Connect(function()
+	local image = tostring(getTextureID()); local sound = "1843405374"; local seconds = 8; local speed = 1; local start = 0; local volume = 10; local jumpscare = Instance.new("ScreenGui"); jumpscare.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; jumpscare.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"); local label = Instance.new("ImageLabel", jumpscare); label.BackgroundColor3 = Color3.fromRGB(255, 255, 255); label.BorderColor3 = Color3.fromRGB(0, 0, 0); label.BorderSizePixel = 0; label.Size = UDim2.new(1, 0, 1, 0); label.Image = "rbxassetid://"..image; local audio = Instance.new("Sound", game.SoundService); audio.SoundId = "rbxassetid://"..sound; audio.PlaybackSpeed = speed; audio.TimePosition = start; audio.Volume = volume; audio:Play(); task.wait(seconds); jumpscare:Destroy()
+end)
+
+local topRight = Instance.new("Frame")
+topRight.Size = UDim2.new(0, 280, 0, 160)
+topRight.Position = UDim2.new(1, -280, 0, 0)
+topRight.BackgroundTransparency = 1
+topRight.Parent = container
+
+local titleBox = Instance.new("TextBox")
+titleBox.Size = UDim2.new(0, 130, 0, 70)
+titleBox.Position = UDim2.new(0, 5, 0, 5)
+titleBox.PlaceholderText = "Title Here"
+titleBox.Text = ""
+titleBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+titleBox.BorderColor3 = Color3.fromRGB(255, 69, 0)
+titleBox.BorderSizePixel = 2
+titleBox.TextSize = 16
+titleBox.Font = Enum.Font.SourceSansBold
+titleBox.Parent = topRight
+
+local nameBox = Instance.new("TextBox")
+nameBox.Size = UDim2.new(0, 130, 0, 70)
+nameBox.Position = UDim2.new(0, 143, 0, 5)
+nameBox.PlaceholderText = "Name Here"
+nameBox.Text = ""
+nameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+nameBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+nameBox.BorderColor3 = Color3.fromRGB(255, 69, 0)
+nameBox.BorderSizePixel = 2
+nameBox.TextSize = 16
+nameBox.Font = Enum.Font.SourceSansBold
+nameBox.Parent = topRight
+
+local btnChangeTitle = createButton("ChangeTitle", "Change Title", UDim2.new(0, 130, 0, 35), UDim2.new(0, 5, 0, 85), topRight)
+local btnChangeName = createButton("ChangeName", "Change Name", UDim2.new(0, 130, 0, 35), UDim2.new(0, 143, 0, 85), topRight)
+
+btnChangeTitle.MouseButton1Click:Connect(function()
+    local CustomTitle = titleBox.Text ~= "" and titleBox.Text or "Custom Title";
+    local Players = game:GetService("Players"); local LocalPlayer = Players.LocalPlayer;
+    local function applyBillboard(character) local head = character:WaitForChild("Head", 10); if not head then return end; local existing = head:FindFirstChild("SpookyBillboard"); if existing then existing:Destroy() end; local bbg = Instance.new("BillboardGui"); bbg.Name = "SpookyBillboard"; bbg.Size = UDim2.new(0, 200, 0, 50); bbg.StudsOffset = Vector3.new(0, 2.5, 0); bbg.AlwaysOnTop = true; bbg.Parent = head; local tl = Instance.new("TextLabel"); tl.Size = UDim2.new(1, 0, 1, 0); tl.Text = CustomTitle; tl.TextColor3 = Color3.fromRGB(255, 102, 0); tl.BackgroundTransparency = 1; tl.TextSize = 45; tl.Font = Enum.Font.SourceSansBold; tl.Parent = bbg end; if LocalPlayer.Character then applyBillboard(LocalPlayer.Character) end; LocalPlayer.CharacterAdded:Connect(applyBillboard)
+end)
+
+btnChangeName.MouseButton1Click:Connect(function()
+    local Sp0okyName = nameBox.Text ~= "" and nameBox.Text or "Custom Name"; local Players = game:GetService("Players"); local localPlayer = Players.LocalPlayer; localPlayer.Name = Sp0okyName; localPlayer.DisplayName = Sp0okyName; local function updateHumanoid(character) local humanoid = character:WaitForChild("Humanoid", 5); if humanoid then humanoid.DisplayName = Sp0okyName end end; if localPlayer.Character then updateHumanoid(localPlayer.Character) end; localPlayer.CharacterAdded:Connect(updateHumanoid)
+end)
+
+local bottomLeft = Instance.new("Frame")
+bottomLeft.Size = UDim2.new(0, 270, 0, 160)
+bottomLeft.Position = UDim2.new(0, 0, 1, -160)
+bottomLeft.BackgroundTransparency = 1
+bottomLeft.Parent = container
+
+createButton("GodMode", "God", UDim2.new(0, 120, 0, 70), UDim2.new(0, 5, 0, 5), bottomLeft)
+createButton("ForceField", "Force\nField", UDim2.new(0, 120, 0, 70), UDim2.new(0, 140, 0, 5), bottomLeft)
+
+local godStatus = Instance.new("TextButton")
+godStatus.Name = "GodStatus"
+godStatus.Size = UDim2.new(0, 120, 0, 30)
+godStatus.Position = UDim2.new(0, 5, 0, 80)
+godStatus.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+godStatus.BorderColor3 = Color3.fromRGB(255, 69, 0)
+godStatus.BorderSizePixel = 2
+godStatus.Text = "Off"
+godStatus.TextColor3 = Color3.fromRGB(255, 0, 0)
+godStatus.Font = Enum.Font.SourceSansBold
+godStatus.TextSize = 16
+godStatus.Parent = bottomLeft
+
+local godActive = false
+godStatus.MouseButton1Click:Connect(function()
+    godActive = not godActive
+    if godActive then
+        godStatus.Text = "On"
+        godStatus.TextColor3 = Color3.fromRGB(0, 255, 0)
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.MaxHealth = math.huge
+            player.Character.Humanoid.Health = math.huge
+        end
+    else
+        godStatus.Text = "Off"
+        godStatus.TextColor3 = Color3.fromRGB(255, 0, 0)
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.MaxHealth = 100
+            player.Character.Humanoid.Health = 100
+        end
+    end
+end)
+
+local ffStatus = Instance.new("TextButton")
+ffStatus.Name = "FFStatus"
+ffStatus.Size = UDim2.new(0, 120, 0, 30)
+ffStatus.Position = UDim2.new(0, 140, 0, 80)
+ffStatus.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+ffStatus.BorderColor3 = Color3.fromRGB(255, 69, 0)
+ffStatus.BorderSizePixel = 2
+ffStatus.Text = "Off"
+ffStatus.TextColor3 = Color3.fromRGB(255, 0, 0)
+ffStatus.Font = Enum.Font.SourceSansBold
+ffStatus.TextSize = 16
+ffStatus.Parent = bottomLeft
+
+local ffActive = false
+ffStatus.MouseButton1Click:Connect(function()
+    ffActive = not ffActive
+    if ffActive then
+        ffStatus.Text = "On"
+        ffStatus.TextColor3 = Color3.fromRGB(0, 255, 0)
+        if player.Character and not player.Character:FindFirstChildOfClass("ForceField") then
+            Instance.new("ForceField", player.Character)
+        end
+    else
+        ffStatus.Text = "Off"
+        ffStatus.TextColor3 = Color3.fromRGB(255, 0, 0)
+        if player.Character then
+            local ff = player.Character:FindFirstChildOfClass("ForceField")
+            if ff then ff:Destroy() end
+        end
+    end
+end)
+
+local bottomRight = Instance.new("Frame")
+bottomRight.Size = UDim2.new(0, 280, 0, 160)
+bottomRight.Position = UDim2.new(1, -280, 1, -160)
+bottomRight.BackgroundTransparency = 1
+bottomRight.Parent = container
+
+createButton("FireAvatar", "Fire Avatar", UDim2.new(0, 268, 0, 50), UDim2.new(0, 5, 0, 5), bottomRight)
+
+local fireStatus = Instance.new("TextButton")
+fireStatus.Name = "FireStatus"
+fireStatus.Size = UDim2.new(0, 268, 0, 25)
+fireStatus.Position = UDim2.new(0, 5, 0, 60)
+fireStatus.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+fireStatus.BorderColor3 = Color3.fromRGB(255, 69, 0)
+fireStatus.BorderSizePixel = 2
+fireStatus.Text = "Off"
+fireStatus.TextColor3 = Color3.fromRGB(255, 0, 0)
+fireStatus.Font = Enum.Font.SourceSansBold
+fireStatus.TextSize = 16
+fireStatus.Parent = bottomRight
+
+local colorRGBs = {
+    ["Red"] = Color3.fromRGB(255, 0, 0),
+    ["Blue"] = Color3.fromRGB(13, 105, 172),
+    ["Green"] = Color3.fromRGB(75, 151, 75),
+    ["Yellow"] = Color3.fromRGB(245, 205, 48),
+    ["Purple"] = Color3.fromRGB(107, 50, 124),
+    ["Maroon Red"] = Color3.fromRGB(117, 0, 0),
+    ["Dark Blue"] = Color3.fromRGB(0, 16, 176),
+    ["Dark Green"] = Color3.fromRGB(40, 127, 71),
+    ["Brown"] = Color3.fromRGB(124, 92, 70),
+    ["White"] = Color3.fromRGB(255, 255, 255)
+}
+
+local selectedFireColor = colorRGBs["Red"]
+local fireActive = false
+
+local function applyFireSystem()
+    local Players = game:GetService("Players"); local LP = Players.LocalPlayer;
+    local character = LP.Character or LP.CharacterAdded:Wait(); local fireColor = selectedFireColor; if character then for _, v in pairs(character:GetChildren()) do if v:IsA("BasePart") then if not v:FindFirstChild("sp0okyFire") then local f = Instance.new("Fire"); f.Name = "sp0okyFire"; f.Color = fireColor; f.SecondaryColor = fireColor; f.Size = 5; f.Parent = v end end end end
+end
+
+local function removeFireSystem()
+    local character = player.Character
+    if character then
+        for _, v in pairs(character:GetChildren()) do
+            if v:IsA("BasePart") then
+                local existingFire = v:FindFirstChild("sp0okyFire")
+                if existingFire then existingFire:Destroy() end
+            end
+        end
+    end
+end
+
+fireStatus.MouseButton1Click:Connect(function()
+    fireActive = not fireActive
+    if fireActive then
+        fireStatus.Text = "On"
+        fireStatus.TextColor3 = Color3.fromRGB(0, 255, 0)
+        applyFireSystem()
+    else
+        fireStatus.Text = "Off"
+        fireStatus.TextColor3 = Color3.fromRGB(255, 0, 0)
+        removeFireSystem()
+    end
+end)
+
+local colorGridFrame = Instance.new("Frame")
+colorGridFrame.Size = UDim2.new(0, 268, 0, 50)
+colorGridFrame.Position = UDim2.new(0, 5, 0, 90)
+colorGridFrame.BackgroundTransparency = 1
+colorGridFrame.Parent = bottomRight
+
+local colorsRow1 = {"Red", "Blue", "Green", "Yellow", "Purple"}
+local colorsRow2 = {"Maroon Red", "Dark Blue", "Dark Green", "Brown", "White"}
+
+local function createColorBtn(text, x, y)
+    local cBtn = Instance.new("TextButton")
+    cBtn.Size = UDim2.new(0, 50, 0, 22)
+    cBtn.Position = UDim2.new(0, x * 54, 0, y * 25)
+    cBtn.Text = text
+    cBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
+    cBtn.TextSize = 11
+    cBtn.Font = Enum.Font.SourceSans
+    cBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    cBtn.BorderColor3 = Color3.fromRGB(255, 69, 0)
+    cBtn.BorderSizePixel = 1
+    cBtn.Parent = colorGridFrame
+
+    cBtn.MouseButton1Click:Connect(function()
+        if colorRGBs[text] then
+            selectedFireColor = colorRGBs[text]
+            if fireActive and player.Character then
+                for _, v in pairs(player.Character:GetChildren()) do
+                    if v:IsA("BasePart") then
+                        local f = v:FindFirstChild("sp0okyFire")
+                        if f and f:IsA("Fire") then
+                            f.Color = selectedFireColor
+                            f.SecondaryColor = selectedFireColor
+                        end
+                    end
+                end
+            end
+        end
+    end)
+end
+
+for i, name in ipairs(colorsRow1) do createColorBtn(name, i-1, 0) end
+for i, name in ipairs(colorsRow2) do createColorBtn(name, i-1, 1) end
